@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Fredoka', 'Baloo 2', 'Nunito', system-ui, -apple-system, sans-serif;
+}
+
+/* ---- Bright, friendly map (sky / sea) ---- */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #bfe3ff !important;
+  font-family: inherit;
+  z-index: 0;
+}
+
+/* Bright friendly Leaflet tooltips */
+.leaflet-tooltip {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border: 2px solid #7dd3fc !important;
+  border-radius: 0.9rem !important;
+  padding: 0.55rem !important;
+  box-shadow: 0 12px 28px -8px rgba(2, 6, 23, 0.28) !important;
+}
+.leaflet-tooltip-top:before { border-top-color: #ffffff !important; }
+.leaflet-tooltip-bottom:before { border-bottom-color: #ffffff !important; }
+.leaflet-tooltip-left:before { border-left-color: #ffffff !important; }
+.leaflet-tooltip-right:before { border-right-color: #ffffff !important; }
+
+/* Custom Marker Styling */
+.custom-infrastructure-marker {
+  background: transparent;
+  border: none;
+}
+
+/* ---- Friendly scrollbars ---- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #bae6fd;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #7dd3fc;
+}
+
+/* ---- Game animations ---- */
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+.animate-floaty { animation: floaty 2.6s ease-in-out infinite; }
+
+@keyframes pop-in {
+  0% { transform: scale(0.86); opacity: 0; }
+  60% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop-in { animation: pop-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.28) rotate(14deg); opacity: 0.85; }
+}
+.animate-sparkle { animation: sparkle 1.4s ease-in-out infinite; }
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+.animate-wiggle { animation: wiggle 0.6s ease-in-out infinite; }
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-12vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(112vh) rotate(720deg); opacity: 0; }
+}
+.confetti-piece {
+  position: fixed;
+  top: 0;
+  width: 10px;
+  height: 16px;
+  border-radius: 2px;
+  animation: confetti-fall linear forwards;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+/* Print Optimization for Dossier */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  header, .leaflet-container, .fixed.bottom-4, .fixed.top-20 {
+    display: none !important;
+  }
+}

@@ -1,0 +1,12 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Copias de seguridad y vista previa local
+*.bak
+vista-previa-app.html

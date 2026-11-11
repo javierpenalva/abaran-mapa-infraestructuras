@@ -1,0 +1,6 @@
+{
+  "name": "Abarán - Mapa de Infraestructuras Críticas",
+  "description": "Sistema de Información Geográfica interactivo de las infraestructuras críticas, servicios de emergencia y redes vitales de Abarán (Región de Murcia).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
