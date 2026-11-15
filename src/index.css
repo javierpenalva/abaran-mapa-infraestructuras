@@ -116,3 +116,21 @@ body {
     display: none !important;
   }
 }
+
+/* ---- Escape room: imprimir solo el certificado ---- */
+@media print {
+  body * { visibility: hidden !important; }
+  .escape-certificate, .escape-certificate * { visibility: visible !important; }
+  .escape-certificate {
+    position: absolute !important; inset: 0 auto auto 0 !important;
+    max-height: none !important; overflow: visible !important; box-shadow: none !important;
+  }
+  .escape-no-print { display: none !important; }
+}
+
+/* ---- Escape room: marcadores ocultos ---- */
+@keyframes mystery-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.55); }
+  50% { box-shadow: 0 0 0 8px rgba(139, 92, 246, 0); }
+}
+.animate-mystery { animation: mystery-glow 2.2s ease-in-out infinite; }

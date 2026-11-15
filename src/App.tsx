@@ -9,14 +9,14 @@ import { BLACKOUT_RESOURCES, BLACKOUT_GUIDE, MUNICIPAL_BLACKOUT_MEASURES, BLACKO
 import { CategoryId, CriticalityLevel, InfrastructureItem } from './types/infrastructure';
 import { Mission, PlayerStats } from './types/game';
 import { EDUCATIONAL_MISSIONS, PLAYER_RANKS } from './data/missionsData';
-import { FENIX_INTRO, FENIX_TASKS } from './data/operationFenix';
 import { Header } from './components/Header';
 import { MapComponent } from './components/MapComponent';
 import { LegendPanel } from './components/LegendPanel';
 import { InfrastructureDetailDrawer } from './components/InfrastructureDetailDrawer';
 import { GameQuestModal } from './components/GameQuestModal';
-import { FenixGamePanel } from './components/FenixGamePanel';
-import { Sparkles, Play, X, BatteryWarning } from 'lucide-react';
+import { EscapeRoom } from './components/EscapeRoom';
+import { useEscapeRoom } from './hooks/useEscapeRoom';
+import { Sparkles, KeyRound, X, BatteryWarning } from 'lucide-react';
 
 export default function App() {
   // Filters & Layers State (OpenStreetMap by default, and Satellite as alternative)
@@ -47,9 +47,10 @@ export default function App() {
   const [isLegendOpen, setIsLegendOpen] = useState(true);
   const [cursorCoordinates, setCursorCoordinates] = useState<{ lat: number; lng: number } | null>(null);
 
-  // Juego guiado "Operación Fénix" (apagón 72h)
-  const [isFenixGameOpen, setIsFenixGameOpen] = useState(false);
-  const [fenixEmergencyFilter, setFenixEmergencyFilter] = useState(false);
+  // Escape room «Abarán a oscuras · 72 horas»
+  const escape = useEscapeRoom(BLACKOUT_RESOURCES);
+  /** Mientras se juega (tras la pantalla de inicio) el mapa pasa a modo escape. */
+  const escapePlaying = escape.active && escape.state.stage !== 'intro';
 
   // Trigger celebration popup
   const showCelebration = (msg: string) => {
@@ -138,24 +139,6 @@ export default function App() {
       showCelebration(`✨ ¡Nuevo lugar descubierto: ${item.name}! (+15 XP)`);
     }
 
-    // Juego guiado Operación Fénix: completar tarea si el elemento es objetivo de la tarea actual
-    const currentTask = FENIX_TASKS.find((t) => !playerStats.completedMissionIds.includes(`fenix-${t.id}`));
-    if (currentTask && fenixEmergencyFilter) {
-      const targetCategories = currentTask.targetCategories as CategoryId[];
-      if (targetCategories.includes(item.category as CategoryId)) {
-        const taskId = `fenix-${currentTask.id}`;
-        if (!playerStats.completedMissionIds.includes(taskId)) {
-          setPlayerStats(prev => ({
-            ...prev,
-            xp: prev.xp + currentTask.xp,
-            completedMissionIds: [...prev.completedMissionIds, taskId],
-            badges: [...prev.badges, `${currentTask.badgeIcon} ${currentTask.badge}`],
-          }));
-          showCelebration(`🎯 ¡Tarea "${currentTask.title}" cumplida! (+${currentTask.xp} XP)`);
-        }
-      }
-    }
-
     // Check target mission completion (original educational missions)
     const matchedMission = EDUCATIONAL_MISSIONS.find(m => m.targetInfraId === item.id && !playerStats.completedMissionIds.includes(m.id));
     if (matchedMission && !matchedMission.question) {
@@ -167,7 +150,7 @@ export default function App() {
       }));
       showCelebration(`🏆 ¡Misión "${matchedMission.title}" completada! (+${matchedMission.xpReward} XP)`);
     }
-  }, [playerStats, fenixEmergencyFilter]);
+  }, [playerStats]);
 
   // Answer Quiz Mission
   const handleAnswerQuestion = (missionId: string, isCorrect: boolean, xp: number) => {
@@ -194,15 +177,17 @@ export default function App() {
       return matchesCat && matchesCrit;
     });
 
-    // Juego Operación Fénix: filtro de emergencia — solo categorías del apagón
-    if (fenixEmergencyFilter) {
-      const allCats = Object.keys(CATEGORIES_META) as CategoryId[];
-      const emergencyCats = new Set(allCats.filter(c => FENIX_TASKS.some(t => t.targetCategories.includes(c))));
-      list = list.filter(item => emergencyCats.has(item.category as CategoryId));
-    }
-
     return list;
-  }, [selectedCategories, selectedCriticality, fenixEmergencyFilter]);
+  }, [selectedCategories, selectedCriticality]);
+
+  // En el escape room, los clics del mapa sirven para «localizar» el lugar del enigma.
+  const handleMapSelect = useCallback((item: InfrastructureItem | null) => {
+    if (escapePlaying) {
+      if (item) escape.tryLocate(item);
+      return;
+    }
+    handleSelectInfrastructure(item);
+  }, [escapePlaying, escape.tryLocate, handleSelectInfrastructure]);
 
   // Counts by category
   const categoryCounts = useMemo(() => {
@@ -221,7 +206,7 @@ export default function App() {
   return (
     <div className="flex flex-col w-screen h-screen overflow-hidden bg-slate-950 font-sans select-none">
       {/* Top Gamified Navigation & Live Search */}
-      <Header
+      {!escapePlaying && <Header
         infrastructures={BLACKOUT_RESOURCES}
         onSelectInfrastructure={handleSelectInfrastructure}
         isLegendOpen={isLegendOpen}
@@ -231,7 +216,7 @@ export default function App() {
         playerStats={playerStats}
         onOpenMissionsModal={() => setIsMissionsModalOpen(true)}
         onOpenGuide={() => setIsGuideOpen(true)}
-      />
+      />}
 
       {/* Floating Gamification Toast Celebration */}
       {celebrationMessage && (
@@ -244,9 +229,10 @@ export default function App() {
       {/* Main Fullscreen GIS Map */}
       <main className="flex-1 w-full relative min-h-0 overflow-hidden pt-20">
         <MapComponent
-          infrastructures={filteredInfrastructures}
-          selectedInfrastructure={selectedInfrastructure}
-          onSelectInfrastructure={handleSelectInfrastructure}
+          infrastructures={escapePlaying ? BLACKOUT_RESOURCES : filteredInfrastructures}
+          selectedInfrastructure={escapePlaying ? null : selectedInfrastructure}
+          onSelectInfrastructure={handleMapSelect}
+          escape={escape.mapState}
           riskZones={[]}
           evacuationRoutes={[]}
           showRiskZones={false}
@@ -259,23 +245,22 @@ export default function App() {
           onUpdateCoordinates={setCursorCoordinates}
         />
 
-        {/* Botón flotante para abrir Operación Fénix */}
-        <button
-          type="button"
-          onClick={() => {
-            setFenixEmergencyFilter(true);
-            setIsFenixGameOpen(true);
-          }}
-          className="fixed bottom-4 right-4 z-[1100] w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-red-500 hover:from-orange-300 hover:to-red-400 text-white font-black shadow-2xl shadow-orange-200 flex items-center justify-center gap-2 transition-transform animate-wiggle active:scale-95 border-2 border-white"
-          title="Abrir misión Operación Fénix (apagón 72h)"
-        >
-          <Play className="w-5 h-5" />
-          <span className="hidden sm:inline text-[10px] font-black leading-none">FÉNIX</span>
-        </button>
+        {/* Botón flotante para abrir el escape room */}
+        {!escape.active && (
+          <button
+            type="button"
+            onClick={() => { setSelectedInfrastructure(null); escape.open(); }}
+            className="fixed bottom-6 right-14 z-[1100] flex items-center gap-2 rounded-full border-2 border-white bg-gradient-to-br from-violet-600 to-fuchsia-500 px-4 py-3 font-black text-white shadow-2xl transition-transform hover:scale-105 active:scale-95"
+            title="Escape room: Abarán a oscuras (apagón de 72 h)"
+          >
+            <KeyRound className="h-5 w-5" />
+            <span className="text-sm leading-none">Escape room</span>
+          </button>
+        )}
       </main>
 
       {/* Interactive Legend Panel with Multi-Tabs */}
-      <LegendPanel
+      {!escapePlaying && <LegendPanel
         selectedCategories={selectedCategories}
         onToggleCategory={handleToggleCategory}
         onSelectAllCategories={handleSelectAllCategories}
@@ -294,7 +279,7 @@ export default function App() {
         totalInfrastructures={filteredInfrastructures.length}
         isOpen={isLegendOpen}
         onToggleOpen={() => setIsLegendOpen(!isLegendOpen)}
-      />
+      />}
 
       {/* Detailed Facility Inspection Drawer */}
       <InfrastructureDetailDrawer
@@ -321,23 +306,8 @@ export default function App() {
         infrastructures={BLACKOUT_RESOURCES}
       />
 
-      {/* Juego guiado Operación Fénix */}
-      <FenixGamePanel
-        isOpen={isFenixGameOpen}
-        onClose={() => {
-          setIsFenixGameOpen(false);
-          setFenixEmergencyFilter(false);
-          setSelectedInfrastructure(null);
-        }}
-        stats={playerStats}
-        infrastructures={BLACKOUT_RESOURCES}
-        onSelectInfrastructure={handleSelectInfrastructure}
-        onGiveXp={(xp, badge) => {
-          setPlayerStats(prev => ({ ...prev, xp: prev.xp + xp, badges: [...prev.badges, badge] }));
-          showCelebration(`+${xp} XP — ${badge}`);
-        }}
-        onFocusOnMap={(item) => setSelectedInfrastructure(item)}
-      />
+      {/* Escape room «Abarán a oscuras» */}
+      <EscapeRoom game={escape} resources={BLACKOUT_RESOURCES} />
 
       {isGuideOpen && (
         <div className="fixed inset-0 z-[1500] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">

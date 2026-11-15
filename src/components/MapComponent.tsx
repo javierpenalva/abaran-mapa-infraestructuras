@@ -24,6 +24,13 @@ interface MapComponentProps {
   cursorCoordinates: { lat: number; lng: number } | null;
   onUpdateCoordinates: (coords: { lat: number; lng: number } | null) => void;
   onMapClick?: (coords: { lat: number; lng: number }) => void;
+  /** Modo escape room: marcadores ocultos salvo los ya encontrados. */
+  escape?: {
+    foundIds: string[];
+    checkedIds: string[];
+    zone: { center: [number, number]; radius: number } | null;
+    revealAll: boolean;
+  } | null;
 }
 
 export const MapComponent: React.FC<MapComponentProps> = ({
@@ -43,6 +50,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   showGrid,
   gridConfig,
   onMapClick,
+  escape,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -282,7 +290,20 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     if (!group) return;
     group.clearLayers();
 
-    if (!showSafetyRadius) return;
+    if (escape?.zone) {
+      const zone = L.circle(escape.zone.center, {
+        radius: escape.zone.radius,
+        color: '#8b5cf6',
+        weight: 3,
+        fillColor: '#a78bfa',
+        fillOpacity: 0.18,
+        dashArray: '8, 6',
+      });
+      zone.bindTooltip('<b>Zona de búsqueda</b>: el lugar está aquí dentro', { sticky: true });
+      group.addLayer(zone);
+    }
+
+    if (!showSafetyRadius || escape) return;
 
     infrastructures.forEach((item) => {
       const meta = CATEGORIES_META[item.category];
@@ -305,7 +326,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
       group.addLayer(circle);
     });
-  }, [infrastructures, showSafetyRadius, selectedInfrastructure, activeScenario]);
+  }, [infrastructures, showSafetyRadius, selectedInfrastructure, activeScenario, escape]);
 
   // Render Infrastructure Markers with Gaming Pins
   useEffect(() => {
@@ -379,9 +400,34 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         </div>
       `;
 
+      if (escape && !escape.revealAll) {
+        const found = escape.foundIds.includes(item.id);
+        const checked = escape.checkedIds.includes(item.id);
+        if (!found) {
+          const mysteryHtml = checked
+            ? `<div class="w-9 h-9 rounded-2xl flex items-center justify-center border-2 border-white bg-slate-400/90 shadow-md grayscale opacity-80 cursor-pointer"><span class="text-base leading-none">${emoji}</span></div>`
+            : `<div class="w-10 h-10 rounded-2xl flex items-center justify-center border-2 border-white bg-gradient-to-br from-violet-600 to-fuchsia-500 shadow-xl animate-mystery cursor-pointer hover:scale-125 transition-transform"><span class="text-lg leading-none font-black text-white">?</span></div>`;
+          const mysteryMarker = L.marker(item.coordinates, {
+            icon: L.divIcon({ className: 'custom-infrastructure-marker', html: mysteryHtml, iconSize: [40, 40], iconAnchor: [20, 20] }),
+          });
+          mysteryMarker.on('click', () => onSelectInfrastructure(item));
+          mysteryMarker.bindTooltip(
+            checked
+              ? `<div class="p-1 text-xs"><b>${item.name}</b><br/><span class="text-slate-500">Ya comprobado: no era este</span></div>`
+              : '<div class="p-1 text-xs font-black text-violet-700">❓ ¿Qué lugar será?</div>',
+            { direction: 'top', offset: [0, -18] },
+          );
+          group.addLayer(mysteryMarker);
+          return;
+        }
+      }
+      const escapeFoundBadge = escape?.foundIds.includes(item.id)
+        ? '<div class="absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[11px] font-black shadow-md border-2 border-white">✓</div>'
+        : '';
+
       const customIcon = L.divIcon({
         className: 'custom-infrastructure-marker',
-        html: iconHtml,
+        html: iconHtml.replace(/<\/div>\s*$/, `${escapeFoundBadge}</div>`),
         iconSize: [40, 40],
         iconAnchor: [20, 20],
       });
@@ -417,7 +463,22 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
       group.addLayer(marker);
     });
-  }, [infrastructures, selectedInfrastructure, activeScenario]);
+  }, [infrastructures, selectedInfrastructure, activeScenario, escape]);
+
+  // Escape room: al empezar, encuadra todos los lugares dejando sitio a la tarjeta del enigma.
+  const escapeOn = !!escape;
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !escapeOn || infrastructures.length === 0) return;
+    const wide = window.innerWidth >= 640;
+    map.flyToBounds(L.latLngBounds(infrastructures.map((i) => i.coordinates)), {
+      paddingTopLeft: [wide ? 400 : 20, 40],
+      paddingBottomRight: [40, wide ? 40 : 300],
+      maxZoom: 17,
+      duration: 1.2,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [escapeOn]);
 
   // Center on Selected Infrastructure
   useEffect(() => {
@@ -437,7 +498,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     if (!map || !group) return;
     group.clearLayers();
 
-    if (!showGrid) return;
+    if (!gridVisible) return;
 
     const grid = gridConfig || ABARAN_URBAN_GRID;
     const { v, h } = gridLines(grid);

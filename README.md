@@ -8,6 +8,22 @@ Incluye fichas de aprendizaje, misiones con preguntas, simulador de incidencias 
 - **Mapa base:** OpenStreetMap (y vista satélite de Esri). **Datos de ubicación:** Plan de Emergencias Municipal de Abarán (2025) y Google Maps.
 - Revisión de datos realizada el 10/11/2026: ver `REVISION_Y_APRENDIZAJES.md` y `FUENTES_DATOS.md`.
 
+## Escape room «Abarán a oscuras · 72 horas»
+
+Botón morado **Escape room** (abajo a la derecha). Por equipos, unos 30–60 min (lo elige el profesorado al empezar).
+
+1. El equipo está en el CECOPAL con **72 horas de batería**; el tiempo real se convierte en horas de batería.
+2. **6 enigmas** (salud, CECOPAL, Ayuntamiento, farmacia, alimentación, punto de apoyo). En cada uno:
+   adivinanza → localizar el lugar en un mapa con marcadores ocultos (❓) → leer el dossier → responder por qué es crítico.
+3. Cada enigma da una letra; con las 6 se abre el **candado final** (solución: `UNIDOS`).
+4. Penalizaciones: fallar el lugar −2 h (con pista frío/templado/caliente), respuesta incorrecta −3 h,
+   pistas −2/−4/−6 h (texto, casilla de la cuadrícula y zona en el mapa), código erróneo −4 h.
+5. Al terminar sale un **certificado imprimible** con puntos, estrellas y las infraestructuras localizadas.
+   Si se agota la batería, el equipo puede seguir en tiempo extra (sin estrellas extra).
+
+La partida se guarda en el navegador: si se cierra o se recarga, aparece «Continuar la partida guardada».
+Los enigmas están en `src/data/escapeRoom.ts` y la lógica en `src/hooks/useEscapeRoom.ts`.
+
 ---
 
 ## 1. Verla sin instalar nada
@@ -50,6 +66,8 @@ Otros comandos: `npm run build` (genera la web estática en `dist/`) y `npm run 
 src/
   data/abaranData.ts        Elementos del mapa, zonas de riesgo, rutas y escenarios
   data/missionsData.ts      Misiones y preguntas del modo juego
+  data/escapeRoom.ts        Enigmas, pistas y candado del escape room
+  hooks/useEscapeRoom.ts    Reloj, penalizaciones y guardado del escape room
   types/infrastructure.ts   Tipos de datos (campos de cada elemento)
   components/               Mapa (Leaflet), fichas, leyenda, simulador, informe
 .github/workflows/deploy.yml  Publicación automática en GitHub Pages
