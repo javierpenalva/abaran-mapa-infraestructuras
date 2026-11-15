@@ -550,62 +550,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         </div>
       </div>
 
-      {/* Floating Tactical Location Shortcuts (Left) */}
-      <div className="absolute top-3 left-3 z-[900] hidden sm:flex flex-col gap-1 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl border border-slate-700 shadow-xl text-xs">
-        <span className="text-[10px] font-black tracking-wider text-amber-400 uppercase px-2 py-0.5 flex items-center gap-1">
-          <Sparkles className="w-3 h-3" />
-          Lugares Clave
-        </span>
-        <button
-          type="button"
-          onClick={() => goToLocation(38.20035, -1.39860, 18)}
-          className="px-2.5 py-1.5 rounded-xl text-left text-amber-300 hover:text-white bg-indigo-950/70 hover:bg-indigo-900 border border-indigo-500/40 transition-colors flex items-center gap-2 font-black shadow-sm"
-        >
-          <span>🏫</span>
-          <span>IES, Bus y Policía</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => goToLocation(38.2045, -1.4010, 15)}
-          className="px-2.5 py-1.5 rounded-xl text-left text-slate-200 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2 font-bold"
-        >
-          <span>🏘️</span>
-          <span>Casco Urbano</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => goToLocation(38.2040, -1.4030, 15)}
-          className="px-2.5 py-1.5 rounded-xl text-left text-slate-200 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2 font-bold"
-        >
-          <span>🎡</span>
-          <span>Río y Norias</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => goToLocation(38.2385, -1.3367, 15)}
-          className="px-2.5 py-1.5 rounded-xl text-left text-slate-200 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2 font-bold"
-        >
-          <span>🛣️</span>
-          <span>Hoya del Campo</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => goToLocation(38.1601, -1.3501, 15)}
-          className="px-2.5 py-1.5 rounded-xl text-left text-slate-200 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2 font-bold"
-        >
-          <span>🧱</span>
-          <span>Presa Azud de Ojós</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => goToLocation(38.1987, -1.4541, 14)}
-          className="px-2.5 py-1.5 rounded-xl text-left text-slate-200 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2 font-bold"
-        >
-          <span>⛰️</span>
-          <span>Sierra del Oro</span>
-        </button>
-      </div>
-
       {/* Floating Coordinates Bar */}
       {cursorCoordinates && (
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[900] bg-slate-900/90 backdrop-blur-md px-3 py-1 rounded-full border border-slate-700 text-[11px] font-mono text-slate-300 shadow-lg pointer-events-none flex items-center gap-3">

@@ -4,19 +4,9 @@
  */
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { 
-  ABARAN_INFRASTRUCTURES, 
-  ABARAN_RISK_ZONES, 
-  ABARAN_EVACUATION_ROUTES,
-  CATEGORIES_META,
-  EMERGENCY_SCENARIOS
-} from './data/abaranData';
-import { 
-  CategoryId, 
-  CriticalityLevel, 
-  EmergencyScenario, 
-  InfrastructureItem 
-} from './types/infrastructure';
+import { CATEGORIES_META } from './data/abaranData';
+import { BLACKOUT_RESOURCES, BLACKOUT_GUIDE, MUNICIPAL_BLACKOUT_MEASURES, BLACKOUT_SOURCES } from './data/blackoutData';
+import { CategoryId, CriticalityLevel, InfrastructureItem } from './types/infrastructure';
 import { Mission, PlayerStats } from './types/game';
 import { EDUCATIONAL_MISSIONS, PLAYER_RANKS } from './data/missionsData';
 import { FENIX_INTRO, FENIX_TASKS } from './data/operationFenix';
@@ -24,12 +14,9 @@ import { Header } from './components/Header';
 import { MapComponent } from './components/MapComponent';
 import { LegendPanel } from './components/LegendPanel';
 import { InfrastructureDetailDrawer } from './components/InfrastructureDetailDrawer';
-import { SimulationModal } from './components/SimulationModal';
-import { ExportReportModal } from './components/ExportReportModal';
 import { GameQuestModal } from './components/GameQuestModal';
 import { FenixGamePanel } from './components/FenixGamePanel';
-import { DistanceRuler } from './components/DistanceRuler';
-import { RotateCcw, Sparkles, Play, AlertCircle } from 'lucide-react';
+import { Sparkles, Play, X, BatteryWarning } from 'lucide-react';
 
 export default function App() {
   // Filters & Layers State (OpenStreetMap by default, and Satellite as alternative)
@@ -39,8 +26,6 @@ export default function App() {
   const [selectedCriticality, setSelectedCriticality] = useState<Set<CriticalityLevel>>(
     () => new Set(['CRITICAL_1', 'HIGH_2', 'MEDIUM_3'])
   );
-  const [showRiskZones, setShowRiskZones] = useState(true);
-  const [showEvacuationRoutes, setShowEvacuationRoutes] = useState(true);
   const [showSafetyRadius, setShowSafetyRadius] = useState(false);
   const [activeBaseMap, setActiveBaseMap] = useState<'osm' | 'satellite'>('osm');
 
@@ -57,29 +42,10 @@ export default function App() {
 
   // Inspection & Modals State
   const [selectedInfrastructure, setSelectedInfrastructure] = useState<InfrastructureItem | null>(null);
-  const [activeScenario, setActiveScenario] = useState<EmergencyScenario | null>(null);
-  const [isSimulationModalOpen, setIsSimulationModalOpen] = useState(false);
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isMissionsModalOpen, setIsMissionsModalOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isLegendOpen, setIsLegendOpen] = useState(true);
   const [cursorCoordinates, setCursorCoordinates] = useState<{ lat: number; lng: number } | null>(null);
-
-  // Medidor de distancias (fichas F04 y F06)
-  const [measurementPoints, setMeasurementPoints] = useState<{ lat: number; lng: number; label: 'A' | 'B' }[]>(
-    []
-  );
-  const [isMeasuring, setIsMeasuring] = useState(false);
-
-  const handleMapClick = (coords: { lat: number; lng: number }) => {
-    if (!isMeasuring) return;
-    if (measurementPoints.length >= 2) {
-      setMeasurementPoints([]);
-    }
-    setMeasurementPoints((prev) => [
-      ...prev,
-      { lat: coords.lat, lng: coords.lng, label: prev.length === 0 ? 'A' : 'B' },
-    ]);
-  };
 
   // Juego guiado "Operación Fénix" (apagón 72h)
   const [isFenixGameOpen, setIsFenixGameOpen] = useState(false);
@@ -151,20 +117,6 @@ export default function App() {
     }
   };
 
-  // Toggle Flood Zones
-  const handleToggleRiskZones = () => {
-    const nextVal = !showRiskZones;
-    setShowRiskZones(nextVal);
-    if (nextVal && !playerStats.completedMissionIds.includes('m4-rio-inundacion')) {
-      setPlayerStats(prev => ({
-        ...prev,
-        xp: prev.xp + 40,
-        completedMissionIds: [...prev.completedMissionIds, 'm4-rio-inundacion'],
-        badges: [...prev.badges, '🌊 Vigilante de Riadas'],
-      }));
-      showCelebration('🌊 ¡Misión completada: "¡Cuidado con la DANA!"! (+40 XP)');
-    }
-  };
 
   // Select Infrastructure & Gamified Discovery
   const handleSelectInfrastructure = useCallback((item: InfrastructureItem | null) => {
@@ -236,7 +188,7 @@ export default function App() {
 
   // Filtered infrastructures
   const filteredInfrastructures = useMemo(() => {
-    let list = ABARAN_INFRASTRUCTURES.filter(item => {
+    let list = BLACKOUT_RESOURCES.filter(item => {
       const matchesCat = selectedCategories.has(item.category);
       const matchesCrit = selectedCriticality.has(item.criticality);
       return matchesCat && matchesCrit;
@@ -258,7 +210,7 @@ export default function App() {
     (Object.keys(CATEGORIES_META) as CategoryId[]).forEach(id => {
       counts[id] = 0;
     });
-    ABARAN_INFRASTRUCTURES.forEach(item => {
+    BLACKOUT_RESOURCES.forEach(item => {
       if (counts[item.category] !== undefined) {
         counts[item.category]++;
       }
@@ -266,51 +218,19 @@ export default function App() {
     return counts;
   }, []);
 
-  // Scenario activation
-  const handleActivateScenario = (scenario: EmergencyScenario) => {
-    setActiveScenario(scenario);
-    const affected = ABARAN_INFRASTRUCTURES.filter(i => scenario.affectedInfrasIds.includes(i.id));
-    const neededCategories = new Set(selectedCategories);
-    affected.forEach(a => neededCategories.add(a.category));
-    setSelectedCategories(neededCategories);
-
-    setShowRiskZones(true);
-    if (scenario.evacuationRouteId) {
-      setShowEvacuationRoutes(true);
-    }
-
-    if (affected.length > 0) {
-      setSelectedInfrastructure(affected[0]);
-    }
-  };
-
-  const handleDeactivateScenario = () => {
-    setActiveScenario(null);
-  };
-
-  const handleFocusAffectedInfrastructure = (infraId: string) => {
-    const item = ABARAN_INFRASTRUCTURES.find(i => i.id === infraId);
-    if (item) {
-      setSelectedInfrastructure(item);
-    }
-  };
-
   return (
     <div className="flex flex-col w-screen h-screen overflow-hidden bg-slate-950 font-sans select-none">
       {/* Top Gamified Navigation & Live Search */}
       <Header
-        infrastructures={ABARAN_INFRASTRUCTURES}
+        infrastructures={BLACKOUT_RESOURCES}
         onSelectInfrastructure={handleSelectInfrastructure}
-        onOpenSimulationModal={() => setIsSimulationModalOpen(true)}
-        onOpenReportModal={() => setIsReportModalOpen(true)}
-        activeScenario={activeScenario}
-        onDeactivateScenario={handleDeactivateScenario}
         isLegendOpen={isLegendOpen}
         onToggleLegend={() => setIsLegendOpen(!isLegendOpen)}
         selectedCategories={selectedCategories}
         onQuickFilterCategory={handleQuickFilterCategory}
         playerStats={playerStats}
         onOpenMissionsModal={() => setIsMissionsModalOpen(true)}
+        onOpenGuide={() => setIsGuideOpen(true)}
       />
 
       {/* Floating Gamification Toast Celebration */}
@@ -321,47 +241,22 @@ export default function App() {
         </div>
       )}
 
-      {/* Active Emergency Alert Bar (if simulation running) */}
-      {activeScenario && (
-        <div className="fixed top-20 left-0 right-0 z-[950] bg-red-600 text-white px-4 py-2 shadow-lg flex items-center justify-between text-xs animate-in slide-in-from-top duration-200">
-          <div className="flex items-center gap-2 max-w-4xl mx-auto w-full">
-            <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
-            <span className="font-extrabold uppercase tracking-wider">
-              {activeScenario.badge}:
-            </span>
-            <span className="font-medium truncate">{activeScenario.title}</span>
-            <span className="hidden md:inline text-red-100 font-light truncate">
-              — {activeScenario.recommendedActions[0]}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={handleDeactivateScenario}
-            className="px-2.5 py-1 rounded bg-red-800 hover:bg-red-900 text-white font-bold text-[11px] flex items-center gap-1 transition-colors flex-shrink-0"
-          >
-            <RotateCcw className="w-3 h-3" />
-            <span className="hidden sm:inline">Finalizar</span>
-          </button>
-        </div>
-      )}
-
       {/* Main Fullscreen GIS Map */}
       <main className="flex-1 w-full relative min-h-0 overflow-hidden pt-20">
         <MapComponent
           infrastructures={filteredInfrastructures}
           selectedInfrastructure={selectedInfrastructure}
           onSelectInfrastructure={handleSelectInfrastructure}
-          riskZones={ABARAN_RISK_ZONES}
-          evacuationRoutes={ABARAN_EVACUATION_ROUTES}
-          showRiskZones={showRiskZones}
-          showEvacuationRoutes={showEvacuationRoutes}
+          riskZones={[]}
+          evacuationRoutes={[]}
+          showRiskZones={false}
+          showEvacuationRoutes={false}
           showSafetyRadius={showSafetyRadius}
           activeBaseMap={activeBaseMap}
           onChangeBaseMap={handleChangeBaseMap}
-          activeScenario={activeScenario}
+          activeScenario={null}
           cursorCoordinates={cursorCoordinates}
           onUpdateCoordinates={setCursorCoordinates}
-          onMapClick={handleMapClick}
         />
 
         {/* Botón flotante para abrir Operación Fénix */}
@@ -387,10 +282,10 @@ export default function App() {
         onDeselectAllCategories={handleDeselectAllCategories}
         selectedCriticality={selectedCriticality}
         onToggleCriticality={handleToggleCriticality}
-        showRiskZones={showRiskZones}
-        onToggleRiskZones={handleToggleRiskZones}
-        showEvacuationRoutes={showEvacuationRoutes}
-        onToggleEvacuationRoutes={() => setShowEvacuationRoutes(!showEvacuationRoutes)}
+        showRiskZones={false}
+        onToggleRiskZones={() => undefined}
+        showEvacuationRoutes={false}
+        onToggleEvacuationRoutes={() => undefined}
         showSafetyRadius={showSafetyRadius}
         onToggleSafetyRadius={() => setShowSafetyRadius(!showSafetyRadius)}
         activeBaseMap={activeBaseMap}
@@ -406,15 +301,7 @@ export default function App() {
         item={selectedInfrastructure}
         onClose={() => setSelectedInfrastructure(null)}
         onFocusOnMap={(item) => setSelectedInfrastructure(item)}
-        onSimulateImpact={(item) => {
-          const matchingScenario = EMERGENCY_SCENARIOS.find((s: EmergencyScenario) => s.affectedInfrasIds.includes(item.id));
-          if (matchingScenario) {
-            handleActivateScenario(matchingScenario);
-          } else {
-            setIsSimulationModalOpen(true);
-          }
-        }}
-        activeScenario={activeScenario}
+        activeScenario={null}
       />
 
       {/* 1º ESO Educational Missions Modal */}
@@ -424,35 +311,14 @@ export default function App() {
         stats={playerStats}
         onSelectMission={(mission) => {
           if (mission.targetInfraId) {
-            const item = ABARAN_INFRASTRUCTURES.find(i => i.id === mission.targetInfraId);
+            const item = BLACKOUT_RESOURCES.find(i => i.id === mission.targetInfraId);
             if (item) handleSelectInfrastructure(item);
           } else if (mission.targetAction === 'satellite_mode') {
             handleChangeBaseMap('satellite');
-          } else if (mission.targetAction === 'flood_zone') {
-            setShowRiskZones(true);
           }
         }}
         onAnswerQuestion={handleAnswerQuestion}
-        infrastructures={ABARAN_INFRASTRUCTURES}
-      />
-
-      {/* Emergency Scenarios Modal */}
-      <SimulationModal
-        isOpen={isSimulationModalOpen}
-        onClose={() => setIsSimulationModalOpen(false)}
-        activeScenario={activeScenario}
-        onActivateScenario={handleActivateScenario}
-        onDeactivateScenario={handleDeactivateScenario}
-        onFocusAffectedInfrastructure={handleFocusAffectedInfrastructure}
-      />
-
-      {/* Dossier Report Modal */}
-      <ExportReportModal
-        isOpen={isReportModalOpen}
-        onClose={() => setIsReportModalOpen(false)}
-        infrastructures={ABARAN_INFRASTRUCTURES}
-        riskZones={ABARAN_RISK_ZONES}
-        evacuationRoutes={ABARAN_EVACUATION_ROUTES}
+        infrastructures={BLACKOUT_RESOURCES}
       />
 
       {/* Juego guiado Operación Fénix */}
@@ -464,7 +330,7 @@ export default function App() {
           setSelectedInfrastructure(null);
         }}
         stats={playerStats}
-        infrastructures={ABARAN_INFRASTRUCTURES}
+        infrastructures={BLACKOUT_RESOURCES}
         onSelectInfrastructure={handleSelectInfrastructure}
         onGiveXp={(xp, badge) => {
           setPlayerStats(prev => ({ ...prev, xp: prev.xp + xp, badges: [...prev.badges, badge] }));
@@ -473,13 +339,20 @@ export default function App() {
         onFocusOnMap={(item) => setSelectedInfrastructure(item)}
       />
 
-      {/* Medidor de distancias (fichas F04 y F06) */}
-      <DistanceRuler
-        points={measurementPoints}
-        isMeasuring={isMeasuring}
-        onToggle={() => setIsMeasuring((p) => !p)}
-        onClear={() => setMeasurementPoints([])}
-      />
+      {isGuideOpen && (
+        <div className="fixed inset-0 z-[1500] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">
+          <section className="max-h-[calc(100vh-2rem)] w-full max-w-2xl overflow-y-auto rounded-3xl border border-amber-400/40 bg-slate-900 p-5 text-white shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-700 pb-4">
+              <div><p className="text-xs font-black tracking-[0.18em] text-amber-300">APAGÓN DE 72 HORAS</p><h2 className="mt-1 text-xl font-black">Plan familiar básico</h2></div>
+              <button onClick={() => setIsGuideOpen(false)} className="rounded-xl p-2 text-slate-400 hover:bg-slate-800 hover:text-white" aria-label="Cerrar guía"><X className="h-5 w-5" /></button>
+            </div>
+            <p className="mt-4 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-3 text-sm text-amber-100"><BatteryWarning className="mr-2 inline h-4 w-4" />Esta guía es educativa. Ante peligro inmediato o urgencia sanitaria, llama al 112.</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">{BLACKOUT_GUIDE.map((tip) => <article key={tip.title} className="rounded-2xl border border-slate-700 bg-slate-950/50 p-3"><h3 className="font-bold text-amber-200">{tip.icon} {tip.title}</h3><p className="mt-1 text-sm leading-relaxed text-slate-300">{tip.text}</p></article>)}</div>
+            <div className="mt-5 border-t border-slate-700 pt-4"><h3 className="font-black text-amber-200">Medidas municipales previstas ante fallo eléctrico</h3><p className="mt-1 text-xs text-slate-400">Resumen educativo de la Adenda al PEMU; en una emergencia, las instrucciones vigentes son siempre las que comuniquen las autoridades.</p><div className="mt-3 grid gap-3 sm:grid-cols-2">{MUNICIPAL_BLACKOUT_MEASURES.map((measure) => <article key={measure.title} className="rounded-2xl border border-indigo-400/25 bg-indigo-950/30 p-3"><h4 className="font-bold text-indigo-100">{measure.icon} {measure.title}</h4><p className="mt-1 text-sm leading-relaxed text-slate-300">{measure.text}</p></article>)}</div><p className="mt-4 text-[11px] text-slate-400">Fuentes: <a className="text-amber-300 underline" href={BLACKOUT_SOURCES.municipal} target="_blank" rel="noreferrer">Adenda al PEMU de Abarán</a> · <a className="text-amber-300 underline" href={BLACKOUT_SOURCES.preparedness} target="_blank" rel="noreferrer">kit de 72 h de Protección Civil</a> · <a className="text-amber-300 underline" href={BLACKOUT_SOURCES.electricalSafety} target="_blank" rel="noreferrer">seguridad eléctrica</a>.</p></div>
+            <div className="sticky bottom-0 -mx-5 -mb-5 mt-5 border-t border-slate-700 bg-slate-900/95 px-5 py-3 backdrop-blur"><button type="button" onClick={() => setIsGuideOpen(false)} className="w-full rounded-xl bg-amber-400 py-2.5 text-sm font-black text-slate-950 hover:bg-amber-300">Cerrar guía y volver al mapa</button></div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

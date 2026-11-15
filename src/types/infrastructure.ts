@@ -37,6 +37,12 @@ export interface InfrastructureItem {
   lastInspectionDate: string;
   detailsUnverified?: boolean; // descripción heredada sin fuente
   backupPowerVerified?: boolean; // dato de generador comprobado
+  /** Enlace de comprobación pública de la ubicación. */
+  mapsUrl?: string;
+  /** Cómo debe interpretarse la posición del marcador. */
+  locationVerification?: string;
+  /** Papel educativo del recurso durante el apagón de 72 horas. */
+  blackoutRole?: string;
 }
 
 export interface CategoryMeta {

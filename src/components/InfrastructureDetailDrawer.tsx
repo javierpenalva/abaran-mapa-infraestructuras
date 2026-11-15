@@ -143,11 +143,12 @@ export const InfrastructureDetailDrawer: React.FC<InfrastructureDetailDrawerProp
         {/* Description */}
         <div>
           <span className="text-[10px] font-black tracking-wider uppercase text-slate-400 block mb-1">
-            Misión e Importancia para el Pueblo:
+            Función durante un apagón de 72 horas:
           </span>
           <p className="text-slate-200 leading-relaxed bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
             {item.description}
           </p>
+          {item.blackoutRole && <p className="mt-2 rounded-xl border border-amber-400/25 bg-amber-400/10 px-3 py-2 text-[11px] font-semibold text-amber-100">⚡ {item.blackoutRole}</p>}
           {item.detailsUnverified && (
             <p className="mt-1.5 text-[10px] text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl px-2.5 py-1.5">
               ⚠ Esta descripción procede de la versión original de la app y no está comprobada con fuentes oficiales.
@@ -200,6 +201,12 @@ export const InfrastructureDetailDrawer: React.FC<InfrastructureDetailDrawerProp
               )}
             </button>
           </div>
+          {item.mapsUrl && (
+            <a href={item.mapsUrl} target="_blank" rel="noreferrer" className="col-span-2 mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-blue-400/30 bg-blue-500/10 px-2.5 py-2 text-[11px] font-bold text-blue-200 hover:bg-blue-500/20">
+              <ExternalLink className="h-3.5 w-3.5" /> Comprobar ubicación en Google Maps
+            </a>
+          )}
+          {item.locationVerification && <p className="col-span-2 text-[10px] text-emerald-300">✓ {item.locationVerification}</p>}
         </div>
 
         {/* Emergency details */}
@@ -248,9 +255,9 @@ export const InfrastructureDetailDrawer: React.FC<InfrastructureDetailDrawerProp
         {/* Protocols */}
         <div>
           <span className="text-[10px] font-black tracking-wider uppercase text-slate-400 block mb-1">
-            ¿Qué se podría hacer en caso de catástrofe?
+            Consejos para este recurso durante el apagón
           </span>
-          <p className="text-[10px] text-slate-400 mb-1">Actuaciones orientativas para pensar en clase; no son los protocolos oficiales del plan de emergencias.</p>
+          <p className="text-[10px] text-slate-400 mb-1">Orientación educativa; no sustituye instrucciones oficiales ni protocolos internos.</p>
           <div className="space-y-1.5 bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
             {item.protocols.map((protocol, idx) => (
               <div key={idx} className="flex items-start gap-2 text-[11px] text-slate-200 font-medium">
@@ -274,17 +281,6 @@ export const InfrastructureDetailDrawer: React.FC<InfrastructureDetailDrawerProp
           <Navigation className="w-4 h-4" />
           <span>¡Ver en el Mapa!</span>
         </button>
-        {onSimulateImpact && (
-          <button
-            type="button"
-            onClick={() => onSimulateImpact(item)}
-            className="py-2.5 px-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors border border-slate-700"
-            title="Ver qué pasa si esta instalación sufre una incidencia"
-          >
-            <Activity className="w-4 h-4 text-amber-400" />
-            <span>Simular Alerta</span>
-          </button>
-        )}
       </div>
     </div>
   );
