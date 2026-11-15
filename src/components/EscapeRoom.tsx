@@ -391,23 +391,23 @@ const FinalLock: React.FC<Props> = ({ game }) => {
         <h2 className="mt-1 text-2xl font-black text-slate-900">El plan de emergencia</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-600">{ESCAPE_FINAL.prompt}</p>
 
-        <div className="mt-5 flex justify-center gap-2">
+        <div className="mt-5 flex justify-center gap-1.5">
           {letters.map((_, slot) => (
-            <div key={slot} className="flex h-14 w-11 items-center justify-center rounded-xl border-2 border-slate-300 bg-slate-50 text-2xl font-black text-slate-900">
+            <div key={slot} className="flex h-12 w-9 items-center justify-center rounded-xl border-2 border-slate-300 bg-slate-50 text-2xl font-black text-slate-900">
               {word[slot] ?? ''}
             </div>
           ))}
         </div>
 
         <p className="mt-4 text-[10px] font-black uppercase tracking-wider text-slate-400">Pulsad las letras en orden</p>
-        <div className="mt-2 flex justify-center gap-2">
+        <div className="mt-2 flex justify-center gap-1.5">
           {letters.map((l, i) => (
             <button
               key={i}
               type="button"
               disabled={picked.includes(i)}
               onClick={() => setPicked((p) => [...p, i])}
-              className="h-12 w-10 rounded-xl bg-amber-400 text-xl font-black text-slate-950 shadow hover:bg-amber-300 disabled:opacity-25"
+              className="h-11 w-9 rounded-xl bg-amber-400 text-lg font-black text-slate-950 shadow hover:bg-amber-300 disabled:opacity-25"
             >
               {l}
             </button>
@@ -416,7 +416,7 @@ const FinalLock: React.FC<Props> = ({ game }) => {
 
         {error > 0 && (
           <p key={error} className="animate-pop-in mt-3 text-sm font-bold text-red-600">
-            ❌ El candado no se abre (−{ESCAPE_PENALTIES.wrongCode} h). Pista: piensa en lo contrario de «separados».
+            ❌ El candado no se abre (−{ESCAPE_PENALTIES.wrongCode} h). Pista: empieza por S y termina en O.
           </p>
         )}
 

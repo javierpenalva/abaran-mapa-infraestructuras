@@ -10,12 +10,12 @@ Incluye fichas de aprendizaje, misiones con preguntas, simulador de incidencias 
 
 ## Escape room «Abarán a oscuras · 72 horas»
 
-Botón morado **Escape room** (abajo a la derecha). Por equipos, unos 30–60 min (lo elige el profesorado al empezar).
+Botón morado **Escape room** (abajo a la derecha). Por equipos, 45, 60 o 75 min (lo elige el profesorado al empezar; recomendado 60).
 
 1. El equipo está en el CECOPAL con **72 horas de batería**; el tiempo real se convierte en horas de batería.
-2. **6 enigmas** (salud, CECOPAL, Ayuntamiento, farmacia, alimentación, punto de apoyo). En cada uno:
+2. **9 enigmas** (salud, CECOPAL, Ayuntamiento, agua potable, farmacia, antenas de móvil, alimentación, punto de apoyo y helipuerto). En cada uno:
    adivinanza → localizar el lugar en un mapa con marcadores ocultos (❓) → leer el dossier → responder por qué es crítico.
-3. Cada enigma da una letra; con las 6 se abre el **candado final** (solución: `UNIDOS`).
+3. Cada enigma da una letra; con las 9 se abre el **candado final** (solución: `SOLIDARIO`).
 4. Penalizaciones: fallar el lugar −2 h (con pista frío/templado/caliente), respuesta incorrecta −3 h,
    pistas −2/−4/−6 h (texto, casilla de la cuadrícula y zona en el mapa), código erróneo −4 h.
 5. Al terminar sale un **certificado imprimible** con puntos, estrellas y las infraestructuras localizadas.

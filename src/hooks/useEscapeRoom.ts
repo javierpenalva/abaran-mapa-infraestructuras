@@ -40,13 +40,14 @@ export interface EscapeState {
   finishedAtHours?: number;
 }
 
-const STORAGE_KEY = 'abaran-escape-room-v1';
+// v2: 9 enigmas (las partidas guardadas con 6 enigmas no son compatibles).
+const STORAGE_KEY = 'abaran-escape-room-v2';
 const TOTAL_HOURS = 72;
 
 const initialState = (): EscapeState => ({
   stage: 'off',
   team: '',
-  durationMin: 45,
+  durationMin: 60,
   enigmaIndex: 0,
   step: 'locate',
   foundIds: [],

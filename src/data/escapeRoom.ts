@@ -2,10 +2,10 @@
  * ESCAPE ROOM «Abarán a oscuras · 72 horas».
  *
  * El equipo está en el CECOPAL (Centro de Coordinación Operativa Municipal)
- * con una batería de 72 horas. Debe resolver 6 enigmas: en cada uno
+ * con una batería de 72 horas. Debe resolver 9 enigmas: en cada uno
  *   1) descifra una adivinanza, 2) localiza el lugar en un mapa con marcadores
  *   ocultos, 3) lee el dossier y responde por qué ese lugar es crítico.
- * Cada enigma resuelto entrega una letra. Con las 6 letras se abre el candado final.
+ * Cada enigma resuelto entrega una letra. Con las 9 letras se abre el candado final.
  *
  * Los datos de cada lugar salen de blackoutData.ts (contrastados en Google Maps y
  * en la Adenda al PEMU de Abarán). No se afirma que ningún edificio tenga generador.
@@ -49,14 +49,14 @@ export const ESCAPE_INTRO = {
   story: [
     'Martes, 11:20. Un apagón deja sin electricidad a toda la Región de Murcia. Los técnicos calculan que la luz puede tardar hasta 72 horas en volver.',
     'Vuestro equipo de cadetes de Protección Civil está en el CECOPAL, el centro desde donde se coordina la emergencia. Solo os queda una batería de 72 horas para la radio y el ordenador del plan de emergencias.',
-    'El plan está bloqueado con un candado de 6 letras. Cada vez que localicéis una infraestructura crítica de Abarán y comprendáis por qué es importante, conseguiréis una letra.',
+    'El plan está bloqueado con un candado de 9 letras. Cada vez que localicéis una infraestructura crítica de Abarán y comprendáis por qué es importante, conseguiréis una letra.',
   ],
   rules: [
     { icon: '🗺️', text: 'En el mapa, los lugares están ocultos (❓). Leed la adivinanza y pulsad el que creáis correcto.' },
     { icon: '🌡️', text: 'Si falláis, la radio os dirá si estáis frío, templado o caliente… pero perderéis 2 horas.' },
     { icon: '💡', text: 'Podéis pedir pistas, aunque cuestan horas de batería.' },
     { icon: '📋', text: 'Al encontrar el lugar, leed el dossier: la pregunta trata sobre él. Una respuesta incorrecta resta 3 horas.' },
-    { icon: '🔐', text: 'Con las 6 letras, abrid el candado final antes de que se agote la batería.' },
+    { icon: '🔐', text: 'Con las 9 letras, abrid el candado final antes de que se agote la batería.' },
   ],
 };
 
@@ -132,7 +132,7 @@ export const ESCAPE_ENIGMAS: EscapeEnigma[] = [
       explanation:
         'Los planes de emergencia siempre tienen un «plan B». En Abarán, el Edificio CIMA (calle Compositor David Templado) es la sede alternativa del CECOPAL.',
     },
-    letter: 'U',
+    letter: 'O',
   },
   {
     id: 'e3-ayuntamiento',
@@ -168,6 +168,39 @@ export const ESCAPE_ENIGMAS: EscapeEnigma[] = [
     letter: 'S',
   },
   {
+    id: 'e-agua',
+    icon: '🚰',
+    room: 'El agua que no sube',
+    hour: 18,
+    situation:
+      'En los barrios altos los grifos echan cada vez menos agua. Un técnico os explica por radio que el problema no es el río: es la electricidad.',
+    riddle:
+      'Junto a la noria más famosa de Abarán, en su parque, hay una planta donde el agua se limpia para poder beberla. ¿Dónde está?',
+    targetIds: ['inf-haz-01'],
+    hintTargetId: 'inf-haz-01',
+    textHint: 'Buscad el Parque Municipal de la Noria Grande, junto al río Segura, al oeste del casco urbano.',
+    whyCritical:
+      'La ETAP (Estación de Tratamiento de Agua Potable) convierte el agua en agua de beber. Según el Plan de Emergencias, su captación es una «instalación forzada», es decir, el agua se impulsa con bombas, y las bombas necesitan electricidad. Los 8 depósitos del pueblo están en alto y reparten el agua por gravedad: dan margen durante un apagón, pero cuando se vacían, el agua deja de llegar.',
+    keyIdeas: [
+      'Sin luz pueden pararse las bombas que tratan y suben el agua.',
+      'Los depósitos en alto reparten el agua por gravedad… hasta que se vacían.',
+      'Por eso el kit de 72 horas lleva agua embotellada (varios litros por persona y día).',
+    ],
+    question: {
+      prompt: '¿Por qué puede faltar agua en casa durante un apagón largo?',
+      options: [
+        'Porque el río se seca cuando se va la luz.',
+        'Porque las bombas eléctricas se paran y los depósitos se van vaciando.',
+        'Porque el Ayuntamiento corta el agua para castigar.',
+        'El agua nunca falta: no depende de la electricidad.',
+      ],
+      correctIndex: 1,
+      explanation:
+        'El agua llega a las casas gracias a bombas eléctricas y a depósitos situados en alto. Sin electricidad, los depósitos siguen dando agua por gravedad solo mientras les quede.',
+    },
+    letter: 'A',
+  },
+  {
     id: 'e4-farmacia',
     icon: '💊',
     room: 'La cruz verde',
@@ -198,7 +231,40 @@ export const ESCAPE_ENIGMAS: EscapeEnigma[] = [
       explanation:
         'Cada medicamento tiene sus propias instrucciones. Una nevera cerrada mantiene el frío varias horas, y el farmacéutico puede decir qué hacer en cada caso.',
     },
-    letter: 'N',
+    letter: 'I',
+  },
+  {
+    id: 'e-antena',
+    icon: '📡',
+    room: 'Sin cobertura',
+    hour: 30,
+    situation:
+      'Los móviles empiezan a mostrar «Sin servicio». Nadie puede llamar a su familia y circulan rumores de boca en boca.',
+    riddle:
+      'En la plaza que lleva el nombre de un género de teatro musical español hay unas antenas de dos compañías de móvil. Encontrad dónde están.',
+    targetIds: ['inf-tel-zarzuela'],
+    hintTargetId: 'inf-tel-zarzuela',
+    textHint: 'El género musical español con partes habladas y cantadas es la «zarzuela». Buscad la Plaza de la Zarzuela y acercad el mapa: en la misma plaza hay una farmacia.',
+    whyCritical:
+      'Las antenas de telefonía móvil funcionan con electricidad. Cuando hay un apagón, aguantan un tiempo con su respaldo, si lo tienen, y luego se apagan: los móviles se quedan sin cobertura aunque tengan batería. Según el Plan de Emergencias, en Abarán hay 15 antenas de cuatro compañías.',
+    keyIdeas: [
+      'La radio a pilas no depende de las antenas de móvil: es la mejor fuente de información.',
+      'Ahorra batería: modo avión, poco brillo y mensajes cortos en lugar de llamadas.',
+      'Acordad antes un punto de encuentro familiar por si no podéis llamaros.',
+    ],
+    question: {
+      prompt: 'Si no hay cobertura de móvil ni internet, ¿cómo prevé el Plan de Emergencias de Abarán avisar a los vecinos?',
+      options: [
+        'No avisa: cada uno tiene que enterarse solo.',
+        'Con vehículos con megafonía, sirenas, volteo de campanas y medios de comunicación locales.',
+        'Enviando cartas por correo.',
+        'Con mensajes en las redes sociales, que siempre funcionan.',
+      ],
+      correctIndex: 1,
+      explanation:
+        'El PEMU (apartado 6.2.1) prevé avisos por medios de comunicación locales, vehículos con megafonía, sirenas y volteo de campanas. Si oyes las campanas o un coche con megáfono, presta atención.',
+    },
+    letter: 'L',
   },
   {
     id: 'e5-alimentos',
@@ -231,7 +297,7 @@ export const ESCAPE_ENIGMAS: EscapeEnigma[] = [
       explanation:
         'Lo ideal son alimentos que aguanten sin nevera y se puedan comer sin cocinar. No olvides el abrelatas manual ni el agua.',
     },
-    letter: 'O',
+    letter: 'R',
   },
   {
     id: 'e6-polideportivo',
@@ -264,20 +330,53 @@ export const ESCAPE_ENIGMAS: EscapeEnigma[] = [
       explanation:
         'Un punto de acogida necesita organización: personal, seguridad, agua, aseos… Por eso solo se abre cuando lo decide el Ayuntamiento o Protección Civil.',
     },
+    letter: 'O',
+  },
+  {
+    id: 'e-helipuerto',
+    icon: '🚁',
+    room: 'Ayuda desde el aire',
+    hour: 54,
+    situation:
+      'Un vecino de una casa aislada en la sierra necesita ir al hospital urgentemente y un desprendimiento ha cortado el camino.',
+    riddle:
+      'Lejos del pueblo, en la Sierra de la Pila, una casa forestal guarda una pista donde aterrizan las aspas. Es el único helipuerto del Plan de Emergencias.',
+    targetIds: ['inf-tra-07'],
+    hintTargetId: 'inf-tra-07',
+    textHint: 'No está en el casco urbano: alejad el mapa y buscad al noreste, más allá de Hoya del Campo, la Casa Forestal de La Aurora.',
+    whyCritical:
+      'Un helicóptero no necesita la red eléctrica ni carreteras abiertas: puede traer ayuda o llevar a un herido al hospital aunque las vías estén cortadas. El helipuerto de La Aurora (2.010 m²) pertenece al Centro de Defensa Forestal de la Comunidad Autónoma. En cambio, por tierra, Abarán tiene 6 salidas principales por carretera (RM-512, RM-513, RM-514, RM-B17, N-301 y N-344) que el Plan recoge para la evacuación.',
+    keyIdeas: [
+      'Un helicóptero sanitario se pide siempre llamando al 112.',
+      'No uses el coche si no es necesario: deja las carreteras libres para los servicios de emergencia.',
+      'Una evacuación no la decide cada familia: la ordena el Director del Plan.',
+    ],
+    question: {
+      prompt: 'Según el Plan de Emergencias de Abarán, ¿quién da la orden de evacuar a la población?',
+      options: [
+        'Cualquier vecino que vea peligro.',
+        'El alcalde, como Director del Plan, a través del Jefe de Operaciones.',
+        'Las compañías de teléfono.',
+        'El director del instituto.',
+      ],
+      correctIndex: 1,
+      explanation:
+        'El PEMU dice que la Dirección del Plan la tiene el alcalde (o quien le sustituya) y que la orden de evacuación la da el Director del Plan a través del Jefe de Operaciones. Así se evita el caos y se usan las rutas seguras.',
+    },
     letter: 'I',
   },
 ];
 
 export const ESCAPE_FINAL = {
-  code: 'UNIDOS',
+  code: 'SOLIDARIO',
   prompt:
-    'Hora 60. El candado del plan de emergencia pide una palabra de 6 letras. Ordenad las letras que habéis conseguido: es lo que hace fuerte a un pueblo en una emergencia.',
+    'Hora 60. El candado del plan de emergencia pide una palabra de 9 letras. Ordenad las letras que habéis conseguido: es lo que hay que ser con los vecinos en una emergencia (lo contrario de egoísta).',
   success:
     'En un apagón de 72 horas nadie se salva solo. Abarán resiste si los servicios críticos funcionan coordinados y si cada familia está preparada y ayuda a sus vecinos.',
 };
 
 export const ESCAPE_DURATIONS = [
-  { minutes: 30, label: '30 min', note: 'Rápida' },
-  { minutes: 45, label: '45 min', note: 'Recomendada' },
-  { minutes: 60, label: '60 min', note: 'Con calma' },
+  { minutes: 45, label: '45 min', note: 'Rápida' },
+  { minutes: 60, label: '60 min', note: 'Recomendada' },
+  { minutes: 75, label: '75 min', note: 'Con calma' },
 ];

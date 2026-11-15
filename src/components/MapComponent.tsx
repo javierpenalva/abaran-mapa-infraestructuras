@@ -411,6 +411,8 @@ export const MapComponent: React.FC<MapComponentProps> = ({
             : `<div class="w-10 h-10 rounded-2xl flex items-center justify-center border-2 border-white bg-gradient-to-br from-violet-600 to-fuchsia-500 shadow-xl animate-mystery cursor-pointer hover:scale-125 transition-transform"><span class="text-lg leading-none font-black text-white">?</span></div>`;
           const mysteryMarker = L.marker(item.coordinates, {
             icon: L.divIcon({ className: 'custom-infrastructure-marker', html: mysteryHtml, iconSize: [40, 40], iconAnchor: [20, 20] }),
+            // Los ❓ pendientes siempre por encima de los ya encontrados o descartados.
+            zIndexOffset: checked ? 0 : 1000,
           });
           mysteryMarker.on('click', () => onSelectInfrastructure(item));
           mysteryMarker.bindTooltip(
@@ -473,7 +475,10 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     const map = mapInstanceRef.current;
     if (!map || !escapeOn || infrastructures.length === 0) return;
     const wide = window.innerWidth >= 640;
-    map.flyToBounds(L.latLngBounds(infrastructures.map((i) => i.coordinates)), {
+    // Encuadra el casco urbano (≤ 1,2 km del centro); los lugares lejanos se ven alejando el mapa.
+    const center = L.latLng(38.2045, -1.4010);
+    const core = infrastructures.filter((i) => center.distanceTo(L.latLng(i.coordinates)) <= 1200);
+    map.flyToBounds(L.latLngBounds((core.length ? core : infrastructures).map((i) => i.coordinates)), {
       paddingTopLeft: [wide ? 400 : 20, 40],
       paddingBottomRight: [40, wide ? 40 : 300],
       maxZoom: 17,
