@@ -43,3 +43,45 @@ en farmacias, gasolineras, EDAR y Frutas Esther.
   neveras con "baterías especiales" en farmacias, "450 camas" en el polideportivo, stock estratégico en Mercadona,
   10.000 m³ de cámaras en Frutas Esther.
 - La ficha de cada elemento muestra ahora "Sin datos comprobados" en electricidad de reserva y marca los protocolos como orientativos.
+
+## Infraestructuras de soporte para emergencias (revisión 15/11/2026)
+
+Archivo: `src/data/emergencyInfrastructure.ts`. **Regla: solo entra un punto si al menos dos fuentes
+independientes coinciden.** El texto del PEMU (128 págs.) ya se puede extraer con `pdftotext -layout`;
+las coordenadas UTM ETRS89 (huso 30) se convirtieron a lat/long (control: Farmacia La Plaza, 6 m de diferencia).
+
+| Elemento | Fuente 1 | Fuente 2 (y 3) |
+|---|---|---|
+| ETAP Abarán (Parque Noria Grande) | PEMU 2.3.2.3 | Edificio visible en ortofoto |
+| Depósito Cabezo de la Cruz (1.000 m³) | PEMU | OpenStreetMap (3 m) |
+| Depósito Cabezo del Cuartel / C/ Reyes Católicos (1.500 m³) | PEMU, tabla de captaciones | OpenStreetMap (22 m) + ortofoto |
+| Depósitos Polideportivo (1.000 m³), Cota 300 (2.500 m³), San José Artesano (150 m³), La Asomada (500 m³) | PEMU | Depósito visible en ortofoto |
+| Depósito Sierra del Oro (133 m³) | PEMU | Pequeña construcción visible en ortofoto |
+| Planta GNL Redexis (30 m³) | PEMU 2.3.2.2 | Recinto vallado visible en ortofoto |
+| Gasolineras Montepinar y BP | PEMU | Google Maps |
+| 6 salidas por carretera (RM-512, RM-513 ×2, RM-514, RM-B17, N-344) | PEMU 2.3.1.1, tabla «Principales accesos» | OpenStreetMap (la carretera pasa por el punto) |
+| Helipuerto Casa Forestal de La Aurora (2.010 m²) | PEMU 2.3.1.3 | OpenStreetMap (18 m) |
+| Estación de telefonía móvil Pl. de la Zarzuela, 4 (Vodafone, Orange) | InfoAntenas, Ministerio para la Transformación Digital: https://geoportal.minetur.gob.es/VCTEL/vcne.do | OpenStreetMap (posición de la plaza). El Ministerio advierte que la posición es orientativa. |
+| Residencia Santa Teresa, consultorios de Hoya del Campo y San José Artesano | PEMU 3.3.1.3 | Google Maps (≤ 24 m) |
+
+Comprobación visual: ortofoto Esri World Imagery a zoom 19 sobre cada punto.
+
+### Errores encontrados en el PEMU
+- **Depósito C/ Reyes Católicos**: en la tabla de depósitos tiene las mismas coordenadas que la oficina de
+  Aqualia (Av. Constitución 19). La tabla de captaciones y OpenStreetMap lo sitúan en el Cabezo del Cuartel
+  (38.20934, -1.39351), donde se ve el depósito en la ortofoto. Se usa esta última posición.
+
+### Descartados por no poder contrastarlos
+- **Depósito junto a la RM-514 (6.000 m³)**: en el punto del PEMU solo se ve monte en la ortofoto. Puede estar
+  enterrado o mal georreferenciado.
+- **«Subestación Abarán 132/20 kV» y «Subestación Hoya del Campo 66/20 kV»**: no figuran en el PEMU ni en
+  OpenStreetMap. Las subestaciones más cercanas que recoge OSM son las de Cieza y Blanca (fuera del término).
+- **Helisuperficie 061 del Polideportivo**: no aparece en el PEMU ni en ninguna fuente pública.
+- **Repetidor de Sierra del Oro**: no aparece en el PEMU ni en InfoAntenas. OSM tiene una torre de
+  comunicaciones en 38.22634, -1.42724, sin operador ni fuente: no se incluye.
+- **Resto de antenas**: el PEMU dice que hay 15 (Movistar 4, Vodafone 6, Orange 3, Másmóvil 2) pero no da
+  su ubicación. InfoAntenas solo permite buscar dirección a dirección y no tiene descarga.
+- **«Antiguo recinto ferial» (zona segura ante terremotos, PEMU 3.1.2.1.7)**: el PEMU lo sitúa frente al nº 42
+  de la Av. de la Constitución, pero el recinto ferial de OSM está en otro sitio. Posición no clara.
+- **Central hidroeléctrica «Nicolás»** y **EDAR**: una sola fuente, o diferencia de 78 m entre fuentes; pendiente
+  de comprobar en ortofoto.

@@ -38,7 +38,10 @@ export const InfrastructureDetailDrawer: React.FC<InfrastructureDetailDrawerProp
   // Fun educational fact generator for 1º ESO students
   const getDidYouKnowFact = () => {
     if (item.category === 'WATER_HYDRAULIC') {
-      return '💧 ¿Sabías que Abarán conserva cuatro de las siete norias que siguen funcionando en la Región de Murcia? La Noria Grande mide 11,92 m de diámetro, gira desde 1808 solo con la fuerza del río y se considera la más grande de Europa.';
+      return '💧 ¿Sabías que, según el Plan de Emergencias, el agua de Abarán llega por la Mancomunidad de los Canales del Taibilla y se guarda en 8 depósitos con casi 12.800 m³ en total? Los depósitos en alto reparten el agua por gravedad, así que durante un apagón dan algo de margen… pero no son infinitos: por eso el kit de 72 h lleva agua embotellada.';
+    }
+    if (item.category === 'ENERGY_POWER') {
+      return '⚡ ¿Sabías que, según el Plan de Emergencias, la electricidad de Abarán la distribuye Iberdrola y desde 2018 hay red de gas natural alimentada por una planta de GNL de Redexis? En un apagón también se paran los surtidores de las gasolineras y los datáfonos: conviene tener el depósito del coche por encima de la mitad y algo de efectivo.';
     }
     if (item.category === 'FOOD_SUPPLY') {
       return '🛒 ¿Sabías que ninguna ley obliga a los supermercados a guardar reservas de agua para emergencias? Lo que recomiendan Protección Civil y la Unión Europea es que cada familia tenga en casa agua y comida para al menos 72 horas. En una emergencia grave, la Ley 17/2015 permite a las autoridades requisar temporalmente bienes, como los alimentos de una tienda, pagando una indemnización.';
@@ -47,13 +50,16 @@ export const InfrastructureDetailDrawer: React.FC<InfrastructureDetailDrawerProp
       return '💊 ¿Sabías que las farmacias se turnan las guardias para que siempre haya alguna abierta? Según el Plan de Emergencias de Abarán, el municipio tiene 5 farmacias y un botiquín en San José Artesano. Medicinas como la insulina se guardan en nevera, entre 2 y 8 °C.';
     }
     if (item.category === 'HEALTH_EMERGENCY') {
-      return '🚑 ¿Sabías que los consultorios de Hoya del Campo y San José Artesano dependen del Centro de Salud de Abarán y solo abren unas horas por la mañana? Fuera de ese horario, ante una urgencia hay que llamar al 112.';
+      return '🚑 ¿Sabías que el Plan de Emergencias de Abarán recoge el Centro de Salud, una clínica, dos consultorios (Hoya del Campo y San José Artesano) y la residencia Santa Teresa? Los consultorios tienen horario limitado: ante una urgencia, siempre 112.';
+    }
+    if (item.id === 'inf-tra-07') {
+      return '🚁 ¿Sabías que el único helipuerto que recoge el Plan de Emergencias de Abarán está en la Casa Forestal de La Aurora, en la Sierra de la Pila? Tiene 2.010 m² y pertenece al Centro de Defensa Forestal de la Comunidad Autónoma.';
     }
     if (item.category === 'TRANSPORT_LOGISTICS') {
-      return '🌉 ¿Sabías que el Puente Viejo de hierro se decidió construir después de la gran riada de 1888, para que aguantara las futuras crecidas del Segura? Sus vigas se fabricaron en la fundición valenciana La Primitiva.';
+      return '🛣️ ¿Sabías que, según el Plan de Emergencias, la RM-513 (Avenida de la Estación) es la carretera con más tráfico de Abarán: entre 7.500 y 40.000 vehículos de media, frente a menos de 5.000 en las demás? Si hubiera que evacuar, la orden y las rutas las da el alcalde como Director del Plan.';
     }
     if (item.category === 'TELECOM_EARLY_WARNING') {
-      return '📡 ¿Sabías que el SAIH de la Confederación Hidrográfica del Segura tiene 162 puntos de control que actualizan sus datos cada 5 minutos? Así se puede avisar de una crecida antes de que llegue.';
+      return '📡 ¿Sabías que puedes consultar todas las antenas de móvil de España en el mapa oficial InfoAntenas del Ministerio? Muestra el operador, las bandas y las mediciones de radiación: junto a la estación de la Plaza de la Zarzuela se midieron valores miles de veces por debajo del límite legal.';
     }
     return '🛡️ ¿Sabías que una infraestructura crítica es aquella que si falla o se inunda, deja al pueblo sin un servicio imprescindible como agua, luz, medicinas o comida?';
   };
@@ -171,10 +177,12 @@ export const InfrastructureDetailDrawer: React.FC<InfrastructureDetailDrawerProp
             <span className="font-bold text-slate-200">{item.pedania || 'Casco Urbano'}</span>
           </div>
 
-          <div>
-            <span className="text-[10px] text-slate-400 block">Altura sobre el mar:</span>
-            <span className="font-bold text-slate-200">{item.elevationMeters} metros</span>
-          </div>
+          {item.elevationMeters > 0 && (
+            <div>
+              <span className="text-[10px] text-slate-400 block">Altura sobre el mar:</span>
+              <span className="font-bold text-slate-200">{item.elevationMeters} metros</span>
+            </div>
+          )}
 
           <div className="col-span-2 pt-2 border-t border-slate-700/80 flex items-center justify-between">
             <div>
@@ -203,7 +211,7 @@ export const InfrastructureDetailDrawer: React.FC<InfrastructureDetailDrawerProp
           </div>
           {item.mapsUrl && (
             <a href={item.mapsUrl} target="_blank" rel="noreferrer" className="col-span-2 mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-blue-400/30 bg-blue-500/10 px-2.5 py-2 text-[11px] font-bold text-blue-200 hover:bg-blue-500/20">
-              <ExternalLink className="h-3.5 w-3.5" /> Comprobar ubicación en Google Maps
+              <ExternalLink className="h-3.5 w-3.5" /> {item.mapsUrl.includes('google.') ? 'Comprobar ubicación en Google Maps' : 'Ver ficha oficial de la fuente'}
             </a>
           )}
           {item.locationVerification && <p className="col-span-2 text-[10px] text-emerald-300">✓ {item.locationVerification}</p>}

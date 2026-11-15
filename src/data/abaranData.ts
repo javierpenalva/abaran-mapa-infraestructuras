@@ -4,7 +4,7 @@ export const CATEGORIES_META: Record<CategoryId, CategoryMeta> = {
   WATER_HYDRAULIC: {
     id: 'WATER_HYDRAULIC',
     name: 'Ciclo Integral del Agua y Presas',
-    shortName: 'Agua y Presas',
+    shortName: 'Agua potable',
     iconName: 'Droplets',
     color: '#0284c7', // Sky-600
     bgColor: '#e0f2fe',
@@ -44,7 +44,7 @@ export const CATEGORIES_META: Record<CategoryId, CategoryMeta> = {
   TRANSPORT_LOGISTICS: {
     id: 'TRANSPORT_LOGISTICS',
     name: 'Transporte, Puentes y Nudos Viales',
-    shortName: 'Transporte',
+    shortName: 'Salidas y helipuerto',
     iconName: 'Truck',
     color: '#475569', // Slate-600
     bgColor: '#f1f5f9',
@@ -54,7 +54,7 @@ export const CATEGORIES_META: Record<CategoryId, CategoryMeta> = {
   TELECOM_EARLY_WARNING: {
     id: 'TELECOM_EARLY_WARNING',
     name: 'Telecomunicaciones y Alerta Hidrológica',
-    shortName: 'Telecom y Alerta',
+    shortName: 'Telecomunicaciones',
     iconName: 'Radio',
     color: '#7c3aed', // Violet-600
     bgColor: '#ede9fe',

@@ -1,4 +1,5 @@
 import { InfrastructureItem } from '../types/infrastructure';
+import { EMERGENCY_INFRASTRUCTURE } from './emergencyInfrastructure';
 
 const maps = (query: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 
@@ -8,7 +9,7 @@ const maps = (query: string) => `https://www.google.com/maps/search/?api=1&query
  * el 15/11/2026. La app no afirma que dispongan de grupo electrógeno: esa
  * información debe confirmarla cada organismo responsable.
  */
-export const BLACKOUT_RESOURCES: InfrastructureItem[] = [
+const CORE_RESOURCES: InfrastructureItem[] = [
   {
     id: 'inf-salud-01', name: 'Centro de Salud de Abarán', code: 'SALUD-01',
     category: 'HEALTH_EMERGENCY', subcategory: 'Atención primaria y urgencias SUAP',
@@ -171,6 +172,9 @@ export const BLACKOUT_RESOURCES: InfrastructureItem[] = [
     mapsUrl: maps('Supermercado Valle Verde, Avenida del Río Segura, Abarán'), locationVerification: 'Nombre, dirección y punto contrastados con PEMU y Google Maps (15/11/2026).', blackoutRole: 'Abastecimiento cotidiano; disponibilidad no garantizada durante el corte.',
   },
 ];
+
+/** Recursos del mapa: servicios a la población + infraestructuras de soporte para emergencias. */
+export const BLACKOUT_RESOURCES: InfrastructureItem[] = [...CORE_RESOURCES, ...EMERGENCY_INFRASTRUCTURE];
 
 export const BLACKOUT_GUIDE = [
   { title: 'Kit eléctrico y de 72 h', icon: '🎒', text: 'Prepara agua, comida que no necesite cocinar, abrelatas, linterna, radio a pilas, pilas o batería externa, medicación y una lista de teléfonos en papel.' },

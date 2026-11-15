@@ -359,7 +359,9 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       if (item.id === 'inf-tra-06') emoji = '🚌'; // Estación de Autobuses
       if (item.id === 'inf-alb-02') emoji = '🏫'; // IES Villa de Abarán
       if (item.id === 'inf-seg-01') emoji = '👮'; // Policía Local
-      if (item.id === 'inf-salud-03') emoji = '🚁'; // Helisuperficie 061
+      if (item.id === 'inf-tra-07') emoji = '🚁'; // Helipuerto La Aurora
+      if (item.id.startsWith('inf-acc-')) emoji = '🛣️'; // Salidas por carretera (PEMU)
+      if (item.id === 'inf-haz-01') emoji = '🚰'; // ETAP
 
       let critNumber = '3';
       let critBg = 'bg-blue-600';

@@ -4,7 +4,7 @@ Mapa interactivo de las infraestructuras críticas, servicios de emergencia y re
 de Abarán (Región de Murcia), pensado para trabajar Protección Civil en 1.º de ESO.
 Incluye fichas de aprendizaje, misiones con preguntas, simulador de incidencias y un informe exportable.
 
-- **59 elementos** en el mapa: sanidad, farmacias, supermercados, agua, energía, transporte, seguridad, centros educativos.
+- **37 elementos** en el mapa del apagón: sanidad, farmacias, alimentación, coordinación, albergues, agua potable (potabilizadora y depósitos), energía, salidas por carretera, helipuerto y telecomunicaciones. Cada punto está contrastado con al menos dos fuentes (ver `FUENTES_DATOS.md`).
 - **Mapa base:** OpenStreetMap (y vista satélite de Esri). **Datos de ubicación:** Plan de Emergencias Municipal de Abarán (2025) y Google Maps.
 - Revisión de datos realizada el 10/11/2026: ver `REVISION_Y_APRENDIZAJES.md` y `FUENTES_DATOS.md`.
 
@@ -67,6 +67,7 @@ src/
   data/abaranData.ts        Elementos del mapa, zonas de riesgo, rutas y escenarios
   data/missionsData.ts      Misiones y preguntas del modo juego
   data/escapeRoom.ts        Enigmas, pistas y candado del escape room
+  data/emergencyInfrastructure.ts  Agua, energía, salidas, helipuerto y antenas (con sus fuentes)
   hooks/useEscapeRoom.ts    Reloj, penalizaciones y guardado del escape room
   types/infrastructure.ts   Tipos de datos (campos de cada elemento)
   components/               Mapa (Leaflet), fichas, leyenda, simulador, informe
